@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ステージ攻略アニメブラウザゲーム</title>
+    <style>
+        /* 全体スタイル */
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #111; color: #fff; overflow: hidden; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; transition: font-family 0.3s ease; }
+        #game-container { width: 100%; height: 100%; max-width: 480px; max-height: 854px; background: #222; position: relative; overflow: hidden; border: 2px solid #444; }
+        
+        /* 共通ボタン */
+        button { padding: 12px 24px; font-size: 16px; font-weight: bold; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px #ff6b81; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px #ff6b81; }
+        button:disabled { background: #555; box-shadow: none; color: #888; cursor: not-allowed; }
+
+        /* 各種画面の管理 */
+        .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .screen.active { display: flex; }
+
+        /* 起動ロゴ画面とNEXTボタンの配置を厳密に調整 */
+        #logo-screen { background: #000; padding: 0; position: relative; }
+        .logo-display-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+        .logo-next-btn {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%); /* 確実に画面中央に配置 */
+            padding: 15px 50px;
+            font-size: 24px;
+            letter-spacing: 2px;
+            z-index: 99999; /* 他の要素に絶対に埋もれないように最前面へ */
+            box-shadow: 0 4px #ff6b81;
+        }
+
+        /* タイトル画面の調整 */
+        #title-screen { padding: 0; position: relative; }
+        .title-bg-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+        .title-start-btn { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 2; font-size: 20px; padding: 15px 40px; letter-spacing: 2px; }
+
+        /* あらすじ画面用スタイル */
+        #prologue-screen { background-color: #000; justify-content: space-between; padding: 30px 20px; }
+        .prologue-title { font-size: 20px; font-weight: bold; color: #ff6b81; border-bottom: 2px solid #ff4757; width: 100%; text-align: center; padding-bottom: 8px; margin-top: 10px; }
+        .prologue-text-box { width: 100%; flex: 1; display: flex; justify-content: center; align-items: center; padding: 10px; }
+        .prologue-text { font-size: 15px; line-height: 1.8; text-shadow: 0 2px 4px rgba(0,0,0,0.9); text-align: left; width: 100%; white-space: pre-wrap; }
+
+        /* 操作説明画面用スタイル */
+        #tutorial-screen { background-color: #1e272e; justify-content: flex-start; padding: 20px; overflow-y: auto; }
+        .tutorial-title { font-size: 22px; font-weight: bold; color: #ffd32a; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-top: 10px; margin-bottom: 25px; }
+        .tutorial-list { width: 100%; display: flex; flex-direction: column; gap: 15px; flex: 1; }
+        .tutorial-item { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; }
+        .tutorial-item-header { font-size: 15px; font-weight: bold; color: #ff4757; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+        .tutorial-item-desc { font-size: 12.5px; line-height: 1.5; color: #dcdde1; }
+
+        /* キャラクター選択画面 */
+        #char-select-screen { justify-content: flex-start; }
+        #char-list { width: 100%; height: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #char-select-main-row { width: 100%; display: flex; flex-direction: row; justify-content: center; align-items: stretch; gap: 10px; margin-bottom: 20px; }
+
+        /* 大型キャラクターボタン */
+        .char-select-btn { 
+            flex: 0 1 48%; background-color: #2f3542 !important; opacity: 1 !important; border
